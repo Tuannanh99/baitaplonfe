@@ -1,0 +1,293 @@
+<script>// =======================================
+// ĐỊA CHỈ MOCKAPI
+// =======================================
+
+const API_URL = "YOUR_API_URL";
+
+// =======================================
+// HIỂN THỊ DANH SÁCH MÓN ĂN
+// =======================================
+
+function loadFoods() {
+
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(data => {
+
+            let html = "";
+
+            data.forEach(food => {
+
+                html += `
+                <tr>
+
+                    <td>${food.id}</td>
+
+                    <td>
+                        <img src="${food.image}"
+                             width="70"
+                             height="70">
+                    </td>
+
+                    <td>${food.name}</td>
+
+                    <td>${Number(food.price).toLocaleString()} đ</td>
+
+                    <td>${food.category}</td>
+
+                    <td>${food.stock}</td>
+
+                    <td>
+
+                        <button
+                            class="btn btn-warning btn-sm"
+                            onclick="editFood('${food.id}')">
+
+                            Sửa
+
+                        </button>
+
+                        <button
+                            class="btn btn-danger btn-sm"
+                            onclick="deleteFood('${food.id}')">
+
+                            Xóa
+
+                        </button>
+
+                    </td>
+
+                </tr>
+                `;
+
+            });
+
+            document.getElementById("foodTable").innerHTML = html;
+
+        });
+
+}
+
+// =======================================
+// THÊM MÓN ĂN
+// =======================================
+
+function addFood() {
+
+    let name = document.getElementById("name").value;
+
+    let price = document.getElementById("price").value;
+
+    let category = document.getElementById("category").value;
+
+    let image = document.getElementById("image").value;
+
+    let description = document.getElementById("description").value;
+
+    let stock = document.getElementById("stock").value;
+
+    // ===== Validation =====
+
+    if (name == "") {
+
+        alert("Vui lòng nhập tên món.");
+
+        return;
+
+    }
+
+    if (price == "") {
+
+        alert("Vui lòng nhập giá.");
+
+        return;
+
+    }
+
+    let food = {
+
+        name: name,
+
+        price: Number(price),
+
+        category: category,
+
+        image: image,
+
+        description: description,
+
+        stock: Number(stock)
+
+    };
+
+    fetch(API_URL, {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type": "application/json"
+
+        },
+
+        body: JSON.stringify(food)
+
+    })
+
+    .then(() => {
+
+        alert("Thêm thành công!");
+
+        clearForm();
+
+        loadFoods();
+
+    });
+
+}
+
+// =======================================
+// XÓA
+// =======================================
+
+function deleteFood(id) {
+
+    if (!confirm("Bạn có chắc muốn xóa?")) {
+
+        return;
+
+    }
+
+    fetch(API_URL + "/" + id, {
+
+        method: "DELETE"
+})
+
+    .then(() => {
+
+        alert("Đã xóa!");
+
+        loadFoods();
+
+    });
+
+}
+
+// =======================================
+// SỬA
+// =======================================
+
+function editFood(id) {
+
+    fetch(API_URL + "/" + id)
+
+        .then(response => response.json())
+
+        .then(food => {
+
+            document.getElementById("name").value = food.name;
+
+            document.getElementById("price").value = food.price;
+
+            document.getElementById("category").value = food.category;
+
+            document.getElementById("image").value = food.image;
+
+            document.getElementById("description").value = food.description;
+
+            document.getElementById("stock").value = food.stock;
+
+            let button = document.querySelector(".btn-success");
+
+            button.innerHTML = "Cập nhật";
+
+            button.onclick = function () {
+
+                updateFood(id);
+
+            };
+
+        });
+
+}
+
+// =======================================
+// CẬP NHẬT
+// =======================================
+
+function updateFood(id) {
+
+    let food = {
+
+        name: document.getElementById("name").value,
+
+        price: Number(document.getElementById("price").value),
+
+        category: document.getElementById("category").value,
+
+        image: document.getElementById("image").value,
+
+        description: document.getElementById("description").value,
+
+        stock: Number(document.getElementById("stock").value)
+
+    };
+
+    fetch(API_URL + "/" + id, {
+
+        method: "PUT",
+
+        headers: {
+
+            "Content-Type": "application/json"
+
+        },
+
+        body: JSON.stringify(food)
+
+    })
+
+    .then(() => {
+
+        alert("Cập nhật thành công!");
+
+        clearForm();
+
+        let button = document.querySelector(".btn-success");
+
+        button.innerHTML = "Thêm món";
+
+        button.onclick = addFood;
+
+        loadFoods();
+
+    });
+
+}
+
+// =======================================
+// XÓA FORM
+// =======================================
+
+function clearForm() {
+
+    document.getElementById("name").value = "";
+
+    document.getElementById("price").value = "";
+
+    document.getElementById("category").value = "";
+
+    document.getElementById("image").value = "";
+
+    document.getElementById("description").value = "";
+
+    document.getElementById("stock").value = "";
+
+}
+
+// =======================================
+// CHẠY CHƯƠNG TRÌNH
+// =======================================
+
+loadFoods();
+</script>
